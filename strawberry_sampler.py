@@ -4,6 +4,7 @@ from scipy import misc
 import os
 import sys
 import simplejson as json
+import shutil
 
 from im_modules import utils
 
@@ -52,7 +53,34 @@ def rotate_segments():
 
 def group_data(l1_g_dir, l1_ng_dir, l1_train_dir, l1_test_dir):
     print('group_data')
-    print(l1_g_dir, os.path.isdir(l1_g_dir))
+
+    print(l1_g_dir, l1_ng_dir, l1_train_dir, l1_test_dir)
+
+    utils.remake_dir(l1_train_dir)
+    utils.remake_dir(os.path.join(l1_train_dir, 'g'))
+    utils.remake_dir(os.path.join(l1_train_dir, 'ng'))
+    utils.remake_dir(l1_test_dir)
+    utils.remake_dir(os.path.join(l1_test_dir, 'g'))
+    utils.remake_dir(os.path.join(l1_test_dir, 'ng'))
+
+    g_files = os.listdir(l1_g_dir)
+    ng_files = os.listdir(l1_ng_dir)
+
+    for fidx, gf_name in enumerate(g_files):
+        if fidx < len(g_files) * 0.1:
+            shutil.copy(os.path.join(l1_g_dir, gf_name),
+                        os.path.join(l1_test_dir, 'g', gf_name))
+        else:
+            shutil.copy(os.path.join(l1_g_dir, gf_name),
+                        os.path.join(l1_train_dir, 'g', gf_name))
+
+    for fidx, ngf_name in enumerate(ng_files):
+        if fidx < len(ng_files) * 0.1:
+            shutil.copy(os.path.join(l1_ng_dir, ngf_name),
+                        os.path.join(l1_test_dir, 'ng', ngf_name))
+        else:
+            shutil.copy(os.path.join(l1_ng_dir, ngf_name),
+                        os.path.join(l1_train_dir, 'ng', ngf_name))
 
 
 def print_usage():

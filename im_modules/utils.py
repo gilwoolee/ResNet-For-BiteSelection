@@ -15,6 +15,15 @@ import matplotlib.patches as patches
 import math
 import cv2
 import sys
+import os
+import shutil
+
+
+def remake_dir(path):
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    else:
+        shutil.rmtree(path)
 
 
 def get_interpolants(sig, mul=10):
