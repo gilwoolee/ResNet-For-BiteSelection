@@ -3,11 +3,12 @@
 
     "layer1_g_dir": "seg_g",
     "layer1_ng_dir": "seg_ng",
+
     "layer1_train_dir": "l1_train",
     "layer1_test_dir": "l1_test",
     "checkout_l1": "l1_checkout",
 
     "layer2_train_dir": "l2_train",
     "layer2_test_dir": "l2_test",
-    "checkout_l2": "l2_checkout",
+    "checkout_l2": "l2_checkout"
 }
