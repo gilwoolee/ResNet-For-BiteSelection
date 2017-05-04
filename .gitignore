@@ -13,7 +13,13 @@ build/
 
 *.html
 
+*.txt
+
 img_result/
+
+*.png
+
+*.jpg
 
 __pycache__/
 

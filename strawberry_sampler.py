@@ -7,6 +7,9 @@ import sys
 import simplejson as json
 import shutil
 import matplotlib.pyplot as plt
+import copy
+import math
+import fnmatch
 
 from im_modules import utils
 
@@ -14,6 +17,97 @@ from im_modules import utils
 fig = None
 target_dir = None
 cur_image_name = None
+
+
+def group_l2_data():
+    print('group_l2_data')
+
+    train_dir = '/mnt/hard-ext/yomkiru/Data/Strawberries/l2_train'
+    test_dir = '/mnt/hard-ext/yomkiru/Data/Strawberries/l2_test'
+    utils.remake_dir(train_dir)
+    utils.remake_dir(test_dir)
+
+    data_dir = '/mnt/hard-ext/yomkiru/Data/Strawberries/l2_data'
+    images = fnmatch.filter(os.listdir(data_dir), '*.png')
+
+    train_count = 0
+    test_count = 0
+    for idx, imgname in enumerate(images):
+        fullname = os.path.join(data_dir, imgname)
+        if idx < len(images) * 0.1:
+            shutil.copy(fullname, os.path.join(test_dir, imgname))
+            shutil.copy(fullname[:-3] + 'out',
+                        os.path.join(test_dir, imgname[:-3] + 'out'))
+            test_count += 1
+        else:
+            shutil.copy(fullname, os.path.join(train_dir, imgname))
+            shutil.copy(fullname[:-3] + 'out',
+                        os.path.join(train_dir, imgname[:-3] + 'out'))
+            train_count += 1
+    print(train_count, test_count)
+
+
+def gen_l2_data():
+    print('gen_l2_data')
+
+    target_dir = '/mnt/hard-ext/yomkiru/Data/Strawberries/l2_data'
+    utils.remake_dir(target_dir)
+
+    sample_dir = '/mnt/hard-ext/yomkiru/Data/Strawberries/seg_sampling'
+    files = os.listdir(sample_dir)
+
+    rot_options = np.linspace(0, 360, 36, endpoint=False)
+    flip_options = [False, True]
+
+    for idx, tname in enumerate(files):
+        if not tname.endswith('.png'):
+            continue
+
+        img_name = os.path.join(sample_dir, tname)
+        img_org = misc.imread(img_name)
+        img = misc.imresize(img_org, [144, 144, 3])
+
+        gt_file = open(img_name[:-3] + 'out', 'r')
+        gt = np.load(gt_file)
+        gt_file.close()
+
+        for t_flip in flip_options:
+            for t_rot in rot_options:
+                t_gt = copy.deepcopy(gt)
+                t_img = copy.deepcopy(img)
+
+                if t_flip:
+                    t_img = t_img[:, ::-1]
+                    t_gt[0] = (t_img.shape[1] -
+                               t_gt[0])
+
+                t_img = utils.rotate_in_degrees(t_img, -t_rot)
+                rotate_point(t_gt, math.radians(t_rot), t_img.shape)
+
+                outfile_name = '%s_%d_%s' % (tname[:-4], t_rot,
+                                             'F' if t_flip else 'N')
+                outfile_name = os.path.join(target_dir, outfile_name)
+
+                misc.imsave(outfile_name + '.png', t_img)
+                outfile = open(outfile_name + '.out', 'w')
+                np.save(outfile, t_gt)
+                outfile.close()
+                print('created: %s' % outfile_name)
+
+
+def rotate_point(p, rot_rad, shape):
+    s = np.sin(rot_rad)
+    c = np.cos(rot_rad)
+
+    p[0] -= shape[1] / 2
+    p[1] -= shape[0] / 2
+
+    new_x = p[0] * c - p[1] * s
+    new_y = p[0] * s + p[1] * c
+
+    p[0] = new_x + shape[1] / 2
+    p[1] = new_y + shape[0] / 2
+    return p
 
 
 def test_sampling():
@@ -253,6 +347,10 @@ def script_main():
         sampling_fork_positions()
     elif sys.argv[1] == 'test':
         test_sampling()
+    elif sys.argv[1] == 'gen_l2':
+        gen_l2_data()
+    elif sys.argv[1] == 'group_l2':
+        group_l2_data()
     else:
         print('error: invalid option')
         print_usage()

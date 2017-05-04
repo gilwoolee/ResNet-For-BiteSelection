@@ -66,6 +66,8 @@ class SP_Layer_1():
             if train_imgs is None or test_imgs is None:
                 return
 
+        tf.reset_default_graph()
+
         img_res = 144
         x = tf.placeholder(tf.float32, shape=[None, img_res, img_res, 3])
         y_ = tf.placeholder(tf.float32, shape=[None, 2])
@@ -138,6 +140,7 @@ class SP_Layer_1():
 
         if is_test:
             th_vec = self.sess.run(h_vec, feed_dict={x: img_list})
+            self.sess.close()
             return th_vec
 
         else:
@@ -161,29 +164,37 @@ class SP_Layer_1():
                                         self.batch_size]
                     self.sess.run(train_step,
                                   feed_dict={x: this_X, y_: this_Y})
-                    if ri % 50 == 0:
+                    if ri % 10 == 0:
                         t_cost, th_vec = self.sess.run([cost, h_vec],
                                                        feed_dict={x: this_X,
                                                                   y_: this_Y})
                         print('ep%d, iter %d, cost: %g' % (ei, ri, t_cost))
                         print(th_vec[ei % self.batch_size],
                               this_Y[ei % self.batch_size])
+                        outfile = open('./logs/log_layer_1_train.txt', 'a+')
+                        outfile.write('%d, %d, %g\n' % (ei, ri, t_cost))
+                        outfile.close()
 
                         saver.save(self.sess, os.path.join(self.checkout_dir,
                                                            'SP_Layer_1'))
-                # test
-                for ri in range(mc_test):
-                    this_X = test_imgs[ri * self.batch_size:
-                                       ri * self.batch_size +
-                                       self.batch_size]
-                    this_Y = test_vecs[ri * self.batch_size:
-                                       ri * self.batch_size +
-                                       self.batch_size]
-                    t_accuracy, th_vec = self.sess.run([accuracy, h_vec],
-                                                       feed_dict={x: this_X,
-                                                                  y_: this_Y})
-                    if ri % 5 == 0:
-                        print("accuracy: %f" % t_accuracy)
+                        # test
+                        avg_test_cost = 0
+                        for ri in range(mc_test):
+                            this_X = test_imgs[ri * self.batch_size:
+                                               ri * self.batch_size +
+                                               self.batch_size]
+                            this_Y = test_vecs[ri * self.batch_size:
+                                               ri * self.batch_size +
+                                               self.batch_size]
+                            t_cost, th_vec = self.sess.run([cost, h_vec],
+                                                           feed_dict={x: this_X,
+                                                                      y_: this_Y})
+                            avg_test_cost += t_cost
+
+                        print('[test] avg_accuracy: %g' % (avg_test_cost))
+                        outfile = open('./logs/log_layer_1_test.txt', 'a+')
+                        outfile.write('%d, %g\n' % (ei, avg_test_cost))
+                        outfile.close()
 
             print('train finished')
             self.sess.close()

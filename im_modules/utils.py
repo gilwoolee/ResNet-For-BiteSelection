@@ -2,7 +2,7 @@
 
 Image utility methods
 by Youngsun Kim
-Oct 2016
+May 2017
 """
 
 import numpy as np
@@ -20,10 +20,9 @@ import shutil
 
 
 def remake_dir(path):
-    if not os.path.isdir(path):
-        os.makedirs(path)
-    else:
+    if os.path.isdir(path):
         shutil.rmtree(path)
+    os.makedirs(path)
 
 
 def get_interpolants(sig, mul=10):
