@@ -110,8 +110,9 @@ class SP_Layer_2():
         b_vec = self.bias_variable([2])
         h_vec = tf.matmul(h_dl, W_vec) + b_vec
 
-        cost = tf.reduce_mean(tf.squared_difference(y_, h_vec))
-        # cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=h_vec))
+        # l2_loss = tf.squared_difference(y_, h_vec)
+        l1_loss = tf.abs(y_ - h_vec)
+        cost = tf.reduce_mean(l1_loss)
         train_step = tf.train.AdamOptimizer(1e-4).minimize(cost)
 
         self.sess = tf.Session()
@@ -163,7 +164,7 @@ class SP_Layer_2():
                         print('ep%d, iter %d, cost: %g' % (ei, ri, t_cost))
                         print(th_vec[ei % self.batch_size],
                               this_Y[ei % self.batch_size])
-                        outfile = open('./logs/log_layer_2_train.txt', 'a+')
+                        outfile = open('./logs/log_layer_2_l1_loss_train.txt', 'a+')
                         outfile.write('%d, %d, %g\n' % (ei, ri, t_cost))
                         outfile.close()
 
@@ -182,9 +183,10 @@ class SP_Layer_2():
                                                            feed_dict={x: this_X,
                                                                       y_: this_Y})
                             avg_test_cost += t_cost
+                        avg_test_cost /= mc_test
 
                         print('[test] avg_accuracy: %g' % (avg_test_cost))
-                        outfile = open('./logs/log_layer_2_test.txt', 'a+')
+                        outfile = open('./logs/log_layer_2_l1_loss_test.txt', 'a+')
                         outfile.write('%d, %g\n' % (ei, avg_test_cost))
                         outfile.close()
 

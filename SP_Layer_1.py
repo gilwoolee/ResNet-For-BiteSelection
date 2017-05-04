@@ -190,6 +190,7 @@ class SP_Layer_1():
                                                            feed_dict={x: this_X,
                                                                       y_: this_Y})
                             avg_test_cost += t_cost
+                        avg_test_cost /= mc_test
 
                         print('[test] avg_accuracy: %g' % (avg_test_cost))
                         outfile = open('./logs/log_layer_1_test.txt', 'a+')
