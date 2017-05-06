@@ -1,5 +1,5 @@
 {
-    "base_dir": "/mnt/hard-ext/yomkiru/Data/Strawberries",
+    "base_dir": "./data_sample",
 
     "layer1_g_dir": "seg_g",
     "layer1_ng_dir": "seg_ng",
