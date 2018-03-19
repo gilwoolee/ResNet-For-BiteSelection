@@ -1,3 +1,4 @@
-# Strawberry Project
+# ResNet-For-BiteSelection
 
-![alt text](https://github.com/yskim041/Strawberry-Project/blob/master/sample_rst/l1_rst.png?raw=true "Sample Result")
+Please cite this as the following:
+Youngsun Kim and Gilwoo Lee, ResNet For Bite Selection, (2017), GitHub repository, https://github.com/gilwoolee/ResNet-For-BiteSelection
